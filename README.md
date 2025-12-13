@@ -6,6 +6,240 @@ A modern, accessible fitness app to help anyone build sustainable habits through
 
 Fitness for Everyone focuses on inclusive design, simple onboarding, and evidence-based guidance. The app supports personalized plans, flexible scheduling, and clear progress tracking. It is designed to work well on mobile and desktop, with offline-friendly features and seamless syncing.
 
+## High-Level Design (HLD)
+
+### Architecture Overview
+
+The application follows a **3-tier architecture** with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     PRESENTATION LAYER                       │
+│  ┌────────────────────────────────────────────────────┐    │
+│  │   React Frontend (Vite)                            │    │
+│  │   - Responsive UI (Mobile & Web)                   │    │
+│  │   - State Management (React Hooks)                 │    │
+│  │   - HTTP Client (Axios)                            │    │
+│  │   Port: 5173                                       │    │
+│  └────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                            ↕ HTTP/REST
+┌─────────────────────────────────────────────────────────────┐
+│                     APPLICATION LAYER                        │
+│  ┌────────────────────────────────────────────────────┐    │
+│  │   Spring Boot Backend (Java 17)                    │    │
+│  │   ┌──────────────┐  ┌──────────────┐              │    │
+│  │   │ Controllers  │  │   Services   │              │    │
+│  │   │ - REST APIs  │→ │ - Business   │              │    │
+│  │   │ - CORS       │  │   Logic      │              │    │
+│  │   └──────────────┘  └──────────────┘              │    │
+│  │   Port: 8080                                       │    │
+│  └────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                            ↕ JPA/Hibernate
+┌─────────────────────────────────────────────────────────────┐
+│                       DATA LAYER                             │
+│  ┌────────────────────────────────────────────────────┐    │
+│  │   H2 In-Memory Database                            │    │
+│  │   - JPA Entities                                   │    │
+│  │   - Spring Data Repositories                       │    │
+│  │   - Auto DDL (create-drop)                         │    │
+│  └────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Component Design
+
+#### Frontend Components
+
+```
+App.jsx (Root Component)
+├── Header
+│   ├── Title
+│   └── Description
+├── TabNavigation
+│   ├── Workouts Tab
+│   └── Progress Tab
+└── Content Area
+    ├── Workout Module
+    │   ├── WorkoutForm
+    │   │   ├── Name Input
+    │   │   ├── Type Select (Cardio/Strength/Yoga/HIIT)
+    │   │   ├── Duration Input
+    │   │   └── Calories Input
+    │   └── WorkoutList
+    │       └── WorkoutCard (with Delete)
+    └── Progress Module
+        ├── ProgressForm
+        │   ├── Weight Input
+        │   └── Notes Textarea
+        └── ProgressList
+            └── ProgressCard (with Delete)
+```
+
+#### Backend Components
+
+```
+Spring Boot Application
+├── Controllers (REST Layer)
+│   ├── WorkoutController
+│   │   ├── GET /api/workouts
+│   │   ├── GET /api/workouts/{id}
+│   │   ├── POST /api/workouts
+│   │   └── DELETE /api/workouts/{id}
+│   └── ProgressController
+│       ├── GET /api/progress
+│       ├── GET /api/progress/{id}
+│       ├── POST /api/progress
+│       └── DELETE /api/progress/{id}
+├── Services (Business Logic)
+│   ├── WorkoutService
+│   │   ├── getAllWorkouts()
+│   │   ├── getWorkoutById()
+│   │   ├── createWorkout()
+│   │   └── deleteWorkout()
+│   └── ProgressService
+│       ├── getAllProgress()
+│       ├── getProgressById()
+│       ├── createProgress()
+│       └── deleteProgress()
+├── Repositories (Data Access)
+│   ├── WorkoutRepository (JpaRepository)
+│   └── ProgressRepository (JpaRepository)
+└── Models (Entities)
+    ├── Workout
+    │   ├── id (Long)
+    │   ├── name (String)
+    │   ├── durationMinutes (Integer)
+    │   ├── type (String)
+    │   ├── caloriesBurned (Integer)
+    │   └── date (LocalDate)
+    └── Progress
+        ├── id (Long)
+        ├── weight (Double)
+        ├── notes (String)
+        └── date (LocalDate)
+```
+
+### Data Flow
+
+#### Workout Creation Flow
+
+```
+1. User fills workout form in React UI
+2. User clicks "Add Workout" button
+3. Frontend validates form data
+4. Axios sends POST request to /api/workouts
+5. WorkoutController receives request
+6. WorkoutService processes business logic
+7. WorkoutRepository saves to H2 database
+8. Response sent back to frontend
+9. UI updates with new workout in list
+```
+
+#### Progress Tracking Flow
+
+```
+1. User enters weight and notes
+2. User clicks "Log Progress" button
+3. Frontend validates form data
+4. Axios sends POST request to /api/progress
+5. ProgressController receives request
+6. ProgressService processes business logic
+7. ProgressRepository saves to H2 database
+8. Response sent back to frontend
+9. UI updates with new progress entry
+```
+
+### Database Schema
+
+#### Workouts Table
+
+```sql
+CREATE TABLE workouts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    calories_burned INTEGER,
+    date DATE NOT NULL
+);
+```
+
+#### Progress Table
+
+```sql
+CREATE TABLE progress (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    weight DOUBLE NOT NULL,
+    notes TEXT,
+    date DATE NOT NULL
+);
+```
+
+### API Endpoints
+
+#### Workout APIs
+
+| Method | Endpoint | Description | Request Body | Response |
+|--------|----------|-------------|--------------|----------|
+| GET | `/api/workouts` | Get all workouts | - | `Workout[]` |
+| GET | `/api/workouts/{id}` | Get workout by ID | - | `Workout` |
+| POST | `/api/workouts` | Create new workout | `Workout` | `Workout` |
+| DELETE | `/api/workouts/{id}` | Delete workout | - | `204 No Content` |
+
+#### Progress APIs
+
+| Method | Endpoint | Description | Request Body | Response |
+|--------|----------|-------------|--------------|----------|
+| GET | `/api/progress` | Get all progress entries | - | `Progress[]` |
+| GET | `/api/progress/{id}` | Get progress by ID | - | `Progress` |
+| POST | `/api/progress` | Create new progress entry | `Progress` | `Progress` |
+| DELETE | `/api/progress/{id}` | Delete progress entry | - | `204 No Content` |
+
+### Technology Stack Details
+
+#### Frontend
+- **Framework**: React 18.3.1
+- **Build Tool**: Vite 5.4.8
+- **HTTP Client**: Axios 1.6.0
+- **Styling**: Custom CSS with responsive design
+- **State Management**: React Hooks (useState, useEffect)
+
+#### Backend
+- **Framework**: Spring Boot 3.3.4
+- **Language**: Java 17
+- **Build Tool**: Maven 3.x
+- **ORM**: Hibernate (JPA)
+- **Database**: H2 (in-memory)
+- **Dependencies**:
+  - spring-boot-starter-web
+  - spring-boot-starter-data-jpa
+  - lombok (for boilerplate reduction)
+  - h2database
+
+### Security Considerations
+
+- **CORS**: Configured to allow requests from `localhost:5173` and `localhost:3000`
+- **Input Validation**: Required fields enforced on both frontend and backend
+- **Data Persistence**: In-memory database (resets on restart)
+- **Future Enhancements**:
+  - Add authentication/authorization
+  - Implement user sessions
+  - Add input sanitization
+  - Use persistent database (MySQL/PostgreSQL)
+
+### Scalability & Future Enhancements
+
+1. **Database Migration**: Move from H2 to PostgreSQL/MySQL for persistence
+2. **User Management**: Add user authentication and multi-user support
+3. **Advanced Analytics**: Add charts and graphs for progress visualization
+4. **Mobile App**: Create native mobile apps (React Native)
+5. **Cloud Deployment**: Deploy to AWS/Azure/GCP
+6. **Caching**: Implement Redis for performance
+7. **File Upload**: Add profile pictures and workout images
+8. **Social Features**: Share workouts with friends
+
 ## Key Features
 
 - Accessible UX compliant with WCAG 2.1 AA
