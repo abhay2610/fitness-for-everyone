@@ -181,25 +181,26 @@ CREATE TABLE progress (
 
 #### Workout APIs
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| GET | `/api/workouts` | Get all workouts | - | `Workout[]` |
-| GET | `/api/workouts/{id}` | Get workout by ID | - | `Workout` |
-| POST | `/api/workouts` | Create new workout | `Workout` | `Workout` |
-| DELETE | `/api/workouts/{id}` | Delete workout | - | `204 No Content` |
+| Method | Endpoint             | Description        | Request Body | Response         |
+| ------ | -------------------- | ------------------ | ------------ | ---------------- |
+| GET    | `/api/workouts`      | Get all workouts   | -            | `Workout[]`      |
+| GET    | `/api/workouts/{id}` | Get workout by ID  | -            | `Workout`        |
+| POST   | `/api/workouts`      | Create new workout | `Workout`    | `Workout`        |
+| DELETE | `/api/workouts/{id}` | Delete workout     | -            | `204 No Content` |
 
 #### Progress APIs
 
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| GET | `/api/progress` | Get all progress entries | - | `Progress[]` |
-| GET | `/api/progress/{id}` | Get progress by ID | - | `Progress` |
-| POST | `/api/progress` | Create new progress entry | `Progress` | `Progress` |
-| DELETE | `/api/progress/{id}` | Delete progress entry | - | `204 No Content` |
+| Method | Endpoint             | Description               | Request Body | Response         |
+| ------ | -------------------- | ------------------------- | ------------ | ---------------- |
+| GET    | `/api/progress`      | Get all progress entries  | -            | `Progress[]`     |
+| GET    | `/api/progress/{id}` | Get progress by ID        | -            | `Progress`       |
+| POST   | `/api/progress`      | Create new progress entry | `Progress`   | `Progress`       |
+| DELETE | `/api/progress/{id}` | Delete progress entry     | -            | `204 No Content` |
 
 ### Technology Stack Details
 
 #### Frontend
+
 - **Framework**: React 18.3.1
 - **Build Tool**: Vite 5.4.8
 - **HTTP Client**: Axios 1.6.0
@@ -207,6 +208,7 @@ CREATE TABLE progress (
 - **State Management**: React Hooks (useState, useEffect)
 
 #### Backend
+
 - **Framework**: Spring Boot 3.3.4
 - **Language**: Java 17
 - **Build Tool**: Maven 3.x
@@ -253,10 +255,10 @@ CREATE TABLE progress (
 
 ## Tech Stack
 
-- App: Pending (e.g., React Native/Next.js/Flutter)  
-- API: Pending (e.g., Node/Express/NestJS/Rails/Django)  
-- DB: Pending (e.g., Postgres + Prisma/TypeORM)  
-- Auth: Pending (e.g., OAuth + JWT/Session)  
+- App: Pending (e.g., React Native/Next.js/Flutter)
+- API: Pending (e.g., Node/Express/NestJS/Rails/Django)
+- DB: Pending (e.g., Postgres + Prisma/TypeORM)
+- Auth: Pending (e.g., OAuth + JWT/Session)
 - Infra: Pending (e.g., Vercel/Netlify/Render + S3/Cloud Storage)
 
 Update this section once the implementation choices are finalized.
@@ -264,6 +266,7 @@ Update this section once the implementation choices are finalized.
 ## Getting Started
 
 1. Prerequisites
+
    - Node.js 18+ (or your chosen runtime)
    - Package manager (npm, pnpm, or yarn)
    - Java 17+
@@ -327,12 +330,14 @@ npx prisma migrate dev
 6. Run the app
 
 Backend (Java):
+
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
 Frontend (React + Vite):
+
 ```bash
 cd frontend
 npm install
@@ -428,5 +433,3 @@ Please follow conventional commits if possible.
 ## License
 
 MIT © Contributors of Fitness for Everyone
-
-
