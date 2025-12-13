@@ -32,6 +32,8 @@ Update this section once the implementation choices are finalized.
 1. Prerequisites
    - Node.js 18+ (or your chosen runtime)
    - Package manager (npm, pnpm, or yarn)
+   - Java 17+
+   - Maven 3.9+
    - Postgres (if applicable) or Docker
 
 2. Clone
@@ -90,11 +92,20 @@ npx prisma migrate dev
 
 6. Run the app
 
+Backend (Java):
 ```bash
+cd backend
+mvn spring-boot:run
+```
+
+Frontend (React + Vite):
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-Then open `http://localhost:3000`.
+Then open `http://localhost:5173` (frontend). The frontend calls the backend on `http://localhost:8080`.
 
 ## Common Scripts
 
@@ -110,6 +121,15 @@ Adjust to match your chosen toolchain.
 
 ```
 fitness-for-everyone/
+  ├─ backend/            # Spring Boot app
+  │   ├─ src/main/java/com/ffe/...
+  │   ├─ src/main/resources/application.properties
+  │   └─ pom.xml
+  ├─ frontend/           # React + Vite app
+  │   ├─ src/App.jsx
+  │   ├─ src/main.jsx
+  │   ├─ index.html
+  │   └─ package.json
   ├─ app/                # Frontend app (pages/routes, UI, hooks)
   ├─ api/                # Backend (routes, services, models)
   ├─ prisma/             # Schema and migrations (if using Prisma)
@@ -153,11 +173,12 @@ Update as the codebase evolves.
 
 ## API (placeholder)
 
-- Auth: `POST /api/auth/*`
-- Users: `GET/PUT /api/users/:id`
-- Workouts: `GET/POST /api/workouts`
-- Logs: `GET/POST /api/logs`
-- Analytics: `GET /api/analytics/*`
+- Workouts: `GET /api/workouts` (list sample workouts)
+- Workouts: `POST /api/workouts` (append a workout in-memory)
+- Auth: `POST /api/auth/*` (future)
+- Users: `GET/PUT /api/users/:id` (future)
+- Logs: `GET/POST /api/logs` (future)
+- Analytics: `GET /api/analytics/*` (future)
 
 Document specifics once endpoints are implemented.
 
