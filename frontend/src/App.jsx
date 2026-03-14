@@ -1,12 +1,17 @@
 import React, { useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import HomeScreen from "./components/HomeScreen";
 import ChatScreen from "./components/ChatScreen";
 import BottomNav from "./components/BottomNav";
+import LoginScreen from "./components/LoginScreen";
+import SignupScreen from "./components/SignupScreen";
+import ActivityScreen from "./components/ActivityScreen";
 
-export default function App() {
+function AuthenticatedApp() {
   const [activeView, setActiveView] = useState("home");
   const [chatOpen, setChatOpen] = useState(false);
   const [initialChatMessage, setInitialChatMessage] = useState("");
+  const { logout } = useAuth();
 
   const handleOpenChat = (message) => {
     setInitialChatMessage(message);
@@ -31,24 +36,18 @@ export default function App() {
             {activeView === "home" && (
               <HomeScreen onOpenChat={handleOpenChat} />
             )}
-            {activeView === "activity" && (
-              <div className="px-5 md:px-8 lg:px-12 pt-6 md:pt-24 pb-24">
-                <h1 className="text-white text-2xl md:text-3xl font-bold mb-4">
-                  Activity
-                </h1>
-                <p className="text-[#6b8b6b] text-sm md:text-base">
-                  Activity tracking coming soon...
-                </p>
-              </div>
-            )}
+            {activeView === "activity" && <ActivityScreen />}
             {activeView === "settings" && (
               <div className="px-5 md:px-8 lg:px-12 pt-6 md:pt-24 pb-24">
                 <h1 className="text-white text-2xl md:text-3xl font-bold mb-4">
                   Settings
                 </h1>
-                <p className="text-[#6b8b6b] text-sm md:text-base">
-                  Settings coming soon...
-                </p>
+                <button
+                  onClick={logout}
+                  className="mt-4 bg-red-900/20 border border-red-800 text-red-400 px-6 py-2 rounded-lg hover:bg-red-900/30 transition-colors"
+                >
+                  Sign Out
+                </button>
               </div>
             )}
             <BottomNav activeView={activeView} onNavigate={setActiveView} />
@@ -56,5 +55,28 @@ export default function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function UnauthenticatedApp() {
+  const [showLogin, setShowLogin] = useState(true);
+
+  return showLogin ? (
+    <LoginScreen onSwitchToSignup={() => setShowLogin(false)} />
+  ) : (
+    <SignupScreen onSwitchToLogin={() => setShowLogin(true)} />
+  );
+}
+
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

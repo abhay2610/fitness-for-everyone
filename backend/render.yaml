@@ -8,4 +8,4 @@ services:
       - key: JAVA_OPTS
         value: -Xmx512m
       - key: SERVER_PORT
-        value: 8080
+        value: 7070

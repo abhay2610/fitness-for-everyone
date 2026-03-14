@@ -1,5 +1,6 @@
 package com.ffe.service;
 
+import com.ffe.model.User;
 import com.ffe.model.Workout;
 import com.ffe.repository.WorkoutRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,10 @@ public class WorkoutService {
     
     public List<Workout> getAllWorkouts() {
         return workoutRepository.findAllByOrderByDateDesc();
+    }
+    
+    public List<Workout> getWorkoutsByUser(User user) {
+        return workoutRepository.findByUserOrderByDateDesc(user);
     }
     
     public Optional<Workout> getWorkoutById(Long id) {

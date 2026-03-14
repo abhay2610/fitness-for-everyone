@@ -1,5 +1,6 @@
 package com.ffe.repository;
 
+import com.ffe.model.User;
 import com.ffe.model.Workout;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,5 @@ import java.util.List;
 public interface WorkoutRepository extends JpaRepository<Workout, Long> {
     List<Workout> findByDateBetweenOrderByDateDesc(LocalDate startDate, LocalDate endDate);
     List<Workout> findAllByOrderByDateDesc();
+    List<Workout> findByUserOrderByDateDesc(User user);
 }

@@ -1,6 +1,7 @@
 package com.ffe.service;
 
 import com.ffe.model.Progress;
+import com.ffe.model.User;
 import com.ffe.repository.ProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,10 @@ public class ProgressService {
     
     public List<Progress> getAllProgress() {
         return progressRepository.findAllByOrderByDateDesc();
+    }
+    
+    public List<Progress> getProgressByUser(User user) {
+        return progressRepository.findByUserOrderByDateDesc(user);
     }
     
     public Optional<Progress> getProgressById(Long id) {
