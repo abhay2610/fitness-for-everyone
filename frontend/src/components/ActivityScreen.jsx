@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import WorkoutLogger from './WorkoutLogger';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import API_BASE from "../config/api";
+import WorkoutLogger from "./WorkoutLogger";
 
 export default function ActivityScreen() {
   const [showLogger, setShowLogger] = useState(false);
@@ -9,10 +10,10 @@ export default function ActivityScreen() {
 
   const fetchWorkouts = async () => {
     try {
-      const response = await axios.get('http://localhost:7070/api/workout-sessions');
+      const response = await axios.get(`${API_BASE}/api/workout-sessions`);
       setWorkouts(response.data);
     } catch (error) {
-      console.error('Error fetching workouts:', error);
+      console.error("Error fetching workouts:", error);
     } finally {
       setLoading(false);
     }
@@ -27,25 +28,25 @@ export default function ActivityScreen() {
   };
 
   const workoutTypeNames = {
-    CHEST: 'Chest Day',
-    BACK: 'Back Day',
-    SHOULDER: 'Shoulder Day',
-    BICEP: 'Bicep Day',
-    TRICEP: 'Tricep Day',
-    LEG: 'Leg Day',
-    CORE_ABS: 'Core / Abs',
-    CARDIO: 'Cardio',
+    CHEST: "Chest Day",
+    BACK: "Back Day",
+    SHOULDER: "Shoulder Day",
+    BICEP: "Bicep Day",
+    TRICEP: "Tricep Day",
+    LEG: "Leg Day",
+    CORE_ABS: "Core / Abs",
+    CARDIO: "Cardio",
   };
 
   const workoutEmojis = {
-    CHEST: '💪',
-    BACK: '🔙',
-    SHOULDER: '🦾',
-    BICEP: '💪',
-    TRICEP: '💪',
-    LEG: '🦵',
-    CORE_ABS: '🔥',
-    CARDIO: '🏃',
+    CHEST: "💪",
+    BACK: "🔙",
+    SHOULDER: "🦾",
+    BICEP: "💪",
+    TRICEP: "💪",
+    LEG: "🦵",
+    CORE_ABS: "🔥",
+    CARDIO: "🏃",
   };
 
   const formatDate = (dateString) => {
@@ -55,11 +56,14 @@ export default function ActivityScreen() {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return "Today";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return "Yesterday";
     } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
     }
   };
 
@@ -131,7 +135,8 @@ export default function ActivityScreen() {
                 {workout.exercises && workout.exercises.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-[#2a3a2a]">
                     <p className="text-[#6b8b6b] text-sm mb-2">
-                      {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
+                      {workout.exercises.length} exercise
+                      {workout.exercises.length !== 1 ? "s" : ""}
                     </p>
                     <div className="space-y-1">
                       {workout.exercises.slice(0, 3).map((exercise, index) => (

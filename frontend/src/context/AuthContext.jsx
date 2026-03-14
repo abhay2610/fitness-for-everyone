@@ -1,78 +1,79 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import axios from "axios";
+import API_BASE from "../config/api";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem("token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
+      localStorage.removeItem("token");
+      delete axios.defaults.headers.common["Authorization"];
     }
   }, [token]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
     }
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:7070/api/auth/login', {
+      const response = await axios.post(`${API_BASE}/api/auth/login`, {
         email,
         password,
       });
-      
+
       const { token, email: userEmail, name } = response.data;
       const userData = { email: userEmail, name };
-      
+
       setToken(token);
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      
+      localStorage.setItem("user", JSON.stringify(userData));
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data || "Login failed",
       };
     }
   };
 
   const register = async (email, password, name) => {
     try {
-      const response = await axios.post('http://localhost:7070/api/auth/register', {
+      const response = await axios.post(`${API_BASE}/api/auth/register`, {
         email,
         password,
         name,
       });
-      
+
       const { token, email: userEmail, name: userName } = response.data;
       const userData = { email: userEmail, name: userName };
-      
+
       setToken(token);
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      
+      localStorage.setItem("user", JSON.stringify(userData));
+
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data || 'Registration failed' 
+      return {
+        success: false,
+        error: error.response?.data || "Registration failed",
       };
     }
   };
@@ -80,8 +81,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const value = {
@@ -107,7 +108,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

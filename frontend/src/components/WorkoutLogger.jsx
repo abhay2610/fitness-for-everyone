@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_BASE from "../config/api";
 import WorkoutTypeSelector from "./WorkoutTypeSelector";
 import ExerciseSelector from "./ExerciseSelector";
 import ExerciseDetailForm from "./ExerciseDetailForm";
@@ -53,10 +54,7 @@ export default function WorkoutLogger({ onClose, onWorkoutSaved }) {
         exercises,
       };
 
-      await axios.post(
-        "http://localhost:7070/api/workout-sessions",
-        workoutData,
-      );
+      await axios.post(`${API_BASE}/api/workout-sessions`, workoutData);
 
       if (onWorkoutSaved) {
         onWorkoutSaved();

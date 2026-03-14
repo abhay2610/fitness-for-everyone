@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE from "../config/api";
 
 export default function ExerciseSelector({
   workoutType,
@@ -13,7 +14,7 @@ export default function ExerciseSelector({
     const fetchExercises = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:7070/api/exercises/${workoutType}`,
+          `${API_BASE}/api/exercises/${workoutType}`,
         );
         setExercises(response.data.exercises);
       } catch (error) {
