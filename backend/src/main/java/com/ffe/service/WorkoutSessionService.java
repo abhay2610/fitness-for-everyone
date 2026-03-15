@@ -31,6 +31,10 @@ public class WorkoutSessionService {
     public WorkoutSession createWorkout(WorkoutSession workout) {
         return workoutSessionRepository.save(workout);
     }
+
+    public void deleteAllByUser(User user) {
+        workoutSessionRepository.deleteByUser(user);
+    }
     
     public Optional<WorkoutSession> getWorkoutById(Long id) {
         return workoutSessionRepository.findById(id);

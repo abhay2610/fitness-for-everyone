@@ -51,7 +51,7 @@ public class DemoDataController {
 
         List<WorkoutSession> existing = workoutSessionService.getWorkoutsByUser(user);
         if (!existing.isEmpty()) {
-            return ResponseEntity.ok("Demo data already present (" + existing.size() + " workouts)");
+            workoutSessionService.deleteAllByUser(user);
         }
 
         List<WorkoutSessionDTO> demos = buildDemoSessions();

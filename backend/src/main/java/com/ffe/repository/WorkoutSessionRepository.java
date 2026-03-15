@@ -13,4 +13,5 @@ public interface WorkoutSessionRepository extends JpaRepository<WorkoutSession, 
     List<WorkoutSession> findByUserOrderByDateDesc(User user);
     List<WorkoutSession> findByUserAndDateBetweenOrderByDateDesc(User user, LocalDate startDate, LocalDate endDate);
     long countByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate);
+    void deleteByUser(User user);
 }
