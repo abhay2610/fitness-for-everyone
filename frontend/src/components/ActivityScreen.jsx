@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import API_BASE from "../config/api";
 import WorkoutLogger from "./WorkoutLogger";
+import { useAuth } from "../context/AuthContext";
 
 export default function ActivityScreen() {
+  const { user } = useAuth();
   const [showLogger, setShowLogger] = useState(false);
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,6 +13,40 @@ export default function ActivityScreen() {
   const [collapsedMonths, setCollapsedMonths] = useState({});
   const [useDemoData, setUseDemoData] = useState(false);
   const sentinelRef = useRef(null);
+
+  // cache helpers
+  const cacheKey = user?.email ? `workouts_${user.email}` : null;
+  const readCache = () => {
+    if (!cacheKey) return null;
+    try {
+      const raw = localStorage.getItem(cacheKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const writeCache = (data) => {
+    if (!cacheKey) return;
+    try {
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({ workouts: data, ts: Date.now() }),
+      );
+    } catch (e) {
+      // ignore storage errors
+    }
+  };
+
+  const isStale = (ts) => {
+    const maxAge = 6 * 60 * 60 * 1000; // 6 hours
+    return !ts || Date.now() - ts > maxAge;
+  };
+
+  // single-flight promise to avoid duplicate fetches
+  const fetchPromiseRef = useRef(null);
 
   const demoWorkouts = useMemo(
     () => [
@@ -110,25 +146,64 @@ export default function ActivityScreen() {
     [],
   );
 
-  const fetchWorkouts = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/api/workout-sessions`);
-      setWorkouts(response.data);
-      if (!response.data || response.data.length === 0) {
-        setUseDemoData(true);
-      }
-    } catch (error) {
-      console.error("Error fetching workouts:", error);
-      setWorkouts([]);
-      setUseDemoData(true);
-    } finally {
-      setLoading(false);
+  const fetchWorkouts = async (force = false) => {
+    if (!user) return;
+    if (!force && fetchPromiseRef.current) {
+      return fetchPromiseRef.current;
     }
+    const p = axios
+      .get(`${API_BASE}/api/workout-sessions`)
+      .then((response) => {
+        setWorkouts(response.data);
+        writeCache(response.data);
+        if (!response.data || response.data.length === 0) {
+          setUseDemoData(true);
+        } else {
+          setUseDemoData(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching workouts:", error);
+        // keep cache/state as-is
+        setUseDemoData(true);
+      })
+      .finally(() => {
+        setLoading(false);
+        fetchPromiseRef.current = null;
+      });
+    fetchPromiseRef.current = p;
+    return p;
   };
 
+  // load cache immediately
   useEffect(() => {
-    fetchWorkouts();
-  }, []);
+    if (!user) return;
+    const cached = readCache();
+    if (cached?.workouts) {
+      setWorkouts(cached.workouts);
+      setLoading(false);
+      if (!cached.workouts.length) setUseDemoData(true);
+      // refresh if stale
+      if (isStale(cached.ts)) {
+        fetchWorkouts();
+      }
+    } else {
+      fetchWorkouts();
+    }
+  }, [user]);
+
+  // idle prefetch after login
+  useEffect(() => {
+    if (!user) return;
+    const idleFetch = () => fetchWorkouts();
+    if ("requestIdleCallback" in window) {
+      const id = window.requestIdleCallback(idleFetch, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    } else {
+      const id = setTimeout(idleFetch, 1000);
+      return () => clearTimeout(id);
+    }
+  }, [user]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
