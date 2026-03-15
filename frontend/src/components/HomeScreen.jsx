@@ -1,7 +1,7 @@
 import React from "react";
 import AgentCard from "./AgentCard";
-import WeeklyConsistency from "./WeeklyConsistency";
-import DailyActivity from "./DailyActivity";
+import ConsistencyGrid from "./ConsistencyGrid";
+import GitaVerseCard from "./GitaVerseCard";
 
 export default function HomeScreen({ onOpenChat }) {
   // Mock data — will be replaced with real API data
@@ -27,19 +27,9 @@ export default function HomeScreen({ onOpenChat }) {
       {/* Agent Card — full width on all screens */}
       <AgentCard onOpenChat={onOpenChat} />
 
-      {/* Stats Grid — side by side on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-        {/* Weekly Consistency */}
-        <WeeklyConsistency completedDays={completedDays} />
-
-        {/* Daily Activity */}
-        <DailyActivity
-          steps={12450}
-          stepsGoal={10000}
-          workoutsDone={4}
-          workoutsGoal={5}
-          calories={2180}
-        />
+      <div className="space-y-5 md:space-y-6">
+        <ConsistencyGrid />
+        <GitaVerseCard />
       </div>
 
       {/* Floating AI Button */}
