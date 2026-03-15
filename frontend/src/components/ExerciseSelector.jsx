@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import API_BASE from "../config/api";
+import React, { useEffect, useState, useMemo } from "react";
 
 export default function ExerciseSelector({
   workoutType,
@@ -10,21 +8,58 @@ export default function ExerciseSelector({
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE}/api/exercises/${workoutType}`,
-        );
-        setExercises(response.data.exercises);
-      } catch (error) {
-        console.error("Error fetching exercises:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const exerciseMap = useMemo(
+    () => ({
+      CHEST: [
+        { name: "Flat Barbell Bench Press", emoji: "💪" },
+        { name: "Incline Dumbbell Press", emoji: "💪" },
+        { name: "Decline Dumbbell Press", emoji: "💪" },
+        { name: "Cable Fly", emoji: "💪" },
+      ],
+      BACK: [
+        { name: "Deadlift", emoji: "🛠" },
+        { name: "Lat Pulldown", emoji: "🏹" },
+        { name: "Seated Cable Row", emoji: "🧲" },
+      ],
+      SHOULDER: [
+        { name: "Dumbbell Shoulder Press", emoji: "🦾" },
+        { name: "Lateral Raise", emoji: "🦾" },
+        { name: "Front Raise", emoji: "🦾" },
+      ],
+      BICEP: [
+        { name: "Barbell Curl", emoji: "💪" },
+        { name: "Hammer Curl", emoji: "🔨" },
+        { name: "Preacher Curl", emoji: "🙏" },
+      ],
+      TRICEP: [
+        { name: "Close Grip Bench Press", emoji: "💪" },
+        { name: "Tricep Pushdown", emoji: "⬇️" },
+        { name: "Overhead Tricep Extension", emoji: "🎯" },
+      ],
+      LEG: [
+        { name: "Barbell Squat", emoji: "🦵" },
+        { name: "Leg Press", emoji: "🦿" },
+        { name: "Romanian Deadlift", emoji: "🦵" },
+        { name: "Lunge", emoji: "🚶" },
+      ],
+      CORE_ABS: [
+        { name: "Cable Crunch", emoji: "🔥" },
+        { name: "Plank", emoji: "🧱" },
+        { name: "Russian Twist", emoji: "🌀" },
+      ],
+      CARDIO: [
+        { name: "Treadmill Running", emoji: "🏃" },
+        { name: "Cycling", emoji: "🚴" },
+        { name: "Rowing", emoji: "🚣" },
+      ],
+    }),
+    [],
+  );
 
-    fetchExercises();
+  useEffect(() => {
+    const list = exerciseMap[workoutType] || [];
+    setExercises(list);
+    setLoading(false);
   }, [workoutType]);
 
   const workoutTypeNames = {
