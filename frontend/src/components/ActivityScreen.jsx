@@ -3,9 +3,11 @@ import axios from "axios";
 import API_BASE from "../config/api";
 import WorkoutLogger from "./WorkoutLogger";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function ActivityScreen() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [showLogger, setShowLogger] = useState(false);
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +15,9 @@ export default function ActivityScreen() {
   const [collapsedMonths, setCollapsedMonths] = useState({});
   const [useDemoData, setUseDemoData] = useState(false);
   const sentinelRef = useRef(null);
+  const [editingWorkout, setEditingWorkout] = useState(null);
+  const [editDate, setEditDate] = useState("");
+  const [editDuration, setEditDuration] = useState("");
 
   // cache helpers
   const cacheKey = user?.email ? `workouts_${user.email}` : null;
@@ -292,6 +297,52 @@ export default function ActivityScreen() {
     setCollapsedMonths((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const handleDeleteWorkout = async (id) => {
+    try {
+      await axios.delete(`${API_BASE}/api/workout-sessions/${id}`);
+      const updated = workouts.filter((w) => w.id !== id);
+      setWorkouts(updated);
+      writeCache(updated);
+    } catch (err) {
+      console.error("Error deleting workout", err);
+      alert("Failed to delete workout");
+    }
+  };
+
+  const handleOpenEdit = (workout) => {
+    setEditingWorkout(workout);
+    setEditDate(workout.date);
+    setEditDuration(workout.durationMinutes || "");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingWorkout) return;
+    try {
+      const payload = {
+        workoutType: editingWorkout.workoutType,
+        date: editDate,
+        durationMinutes: editDuration ? parseInt(editDuration) : null,
+        notes: editingWorkout.notes || null,
+        exercises: editingWorkout.exercises || [],
+      };
+      await axios.put(
+        `${API_BASE}/api/workout-sessions/${editingWorkout.id}`,
+        payload,
+      );
+      const updated = workouts.map((w) =>
+        w.id === editingWorkout.id
+          ? { ...w, date: editDate, durationMinutes: payload.durationMinutes }
+          : w,
+      );
+      setWorkouts(updated);
+      writeCache(updated);
+      setEditingWorkout(null);
+    } catch (err) {
+      console.error("Error updating workout", err);
+      alert("Failed to update workout");
+    }
+  };
+
   if (showLogger) {
     return (
       <WorkoutLogger
@@ -305,17 +356,15 @@ export default function ActivityScreen() {
     <div className="px-5 md:px-8 lg:px-12 pt-6 md:pt-24 pb-24">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-white text-2xl md:text-3xl font-bold mb-6">
-          Activity
+          {t("activity")}
         </h1>
         <div className="flex items-center justify-between mb-4 text-sm text-[#6b8b6b]">
-          <span>
-            {useDemoData ? "Showing demo workouts" : "Showing your workouts"}
-          </span>
+          <span>{useDemoData ? t("showingDemo") : t("showingYour")}</span>
           <button
             onClick={() => setUseDemoData((prev) => !prev)}
             className="text-[#8fbc8f] hover:text-[#a0ccb0] transition-colors"
           >
-            {useDemoData ? "Use my data" : "Use demo data"}
+            {useDemoData ? t("useMyData") : t("useDemo")}
           </button>
         </div>
 
@@ -324,24 +373,22 @@ export default function ActivityScreen() {
           className="w-full mb-6 bg-[#3a5a3a] hover:bg-[#4a6a4a] text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
         >
           <span className="text-xl">+</span>
-          <span>Log Workout</span>
+          <span>{t("logWorkout")}</span>
         </button>
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-[#6b8b6b]">Loading workouts...</div>
+            <div className="text-[#6b8b6b]">{t("loadingWorkouts")}</div>
           </div>
-        ) : workouts.length === 0 ? (
+        ) : workouts.length === 0 && !useDemoData ? (
           <div className="bg-[#131a16] border border-[#2a3a2a] rounded-lg px-6 py-12 text-center">
-            <p className="text-[#6b8b6b] mb-2">No workouts logged yet</p>
-            <p className="text-[#6b8b6b] text-sm">
-              Tap "Log Workout" to get started
-            </p>
+            <p className="text-[#6b8b6b] mb-2">{t("noWorkoutsTitle")}</p>
+            <p className="text-[#6b8b6b] text-sm">{t("noWorkoutsHint")}</p>
           </div>
         ) : (
           <div className="space-y-3">
             <h2 className="text-white text-lg font-semibold mb-3">
-              Recent Workouts
+              {t("recentWorkouts")}
             </h2>
             {groupedByMonth.map((group) => {
               const isCollapsed = collapsedMonths[group.key];
@@ -355,7 +402,7 @@ export default function ActivityScreen() {
                       {group.label}
                     </span>
                     <span className="text-[#6b8b6b] text-xs">
-                      {isCollapsed ? "Show" : "Hide"}
+                      {isCollapsed ? t("show") : t("hide")}
                     </span>
                   </button>
                   {!isCollapsed && (
@@ -407,6 +454,21 @@ export default function ActivityScreen() {
                                   </div>
                                 </div>
                               )}
+                            <div className="flex items-center gap-3 mt-2 text-xs text-[#6b8b6b]">
+                              <button
+                                onClick={() => handleOpenEdit(workout)}
+                                className="hover:text-[#a0ccb0] transition-colors"
+                              >
+                                {t("edit")}
+                              </button>
+                              <span className="text-[#2a3a2a]">|</span>
+                              <button
+                                onClick={() => handleDeleteWorkout(workout.id)}
+                                className="hover:text-red-300 text-red-400 transition-colors"
+                              >
+                                {t("delete")}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -419,6 +481,48 @@ export default function ActivityScreen() {
           </div>
         )}
       </div>
+      {editingWorkout && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#0f1612] border border-[#2a3a2a] rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-white text-lg font-semibold mb-4">
+              {t("edit")}
+            </h3>
+            <label className="block text-[#8fbc8f] text-sm font-medium mb-2">
+              {t("selectDate")}
+            </label>
+            <input
+              type="date"
+              value={editDate}
+              onChange={(e) => setEditDate(e.target.value)}
+              className="w-full bg-[#131a16] border border-[#2a3a2a] rounded-lg px-4 py-3 text-white mb-4"
+            />
+            <label className="block text-[#8fbc8f] text-sm font-medium mb-2">
+              {t("durationLabel")}
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={editDuration}
+              onChange={(e) => setEditDuration(e.target.value)}
+              className="w-full bg-[#131a16] border border-[#2a3a2a] rounded-lg px-4 py-3 text-white mb-6"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setEditingWorkout(null)}
+                className="px-4 py-2 rounded-lg border border-[#2a3a2a] text-[#8fbc8f] hover:border-[#5a8a5a]"
+              >
+                {t("back")}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 rounded-lg bg-[#3a5a3a] text-white hover:bg-[#4a6a4a]"
+              >
+                {t("saveWorkout")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

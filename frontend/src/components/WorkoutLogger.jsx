@@ -4,13 +4,16 @@ import API_BASE from "../config/api";
 import WorkoutTypeSelector from "./WorkoutTypeSelector";
 import ExerciseSelector from "./ExerciseSelector";
 import ExerciseDetailForm from "./ExerciseDetailForm";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function WorkoutLogger({ onClose, onWorkoutSaved }) {
+  const { t } = useLanguage();
   const [step, setStep] = useState("selectType"); // selectType, selectExercise, enterDetails, review
   const [workoutType, setWorkoutType] = useState(null);
   const [selectedExerciseName, setSelectedExerciseName] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [duration, setDuration] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [saving, setSaving] = useState(false);
 
   const handleSelectType = (type) => {
@@ -48,7 +51,7 @@ export default function WorkoutLogger({ onClose, onWorkoutSaved }) {
     try {
       const workoutData = {
         workoutType,
-        date: new Date().toISOString().split("T")[0],
+        date,
         durationMinutes: duration ? parseInt(duration) : null,
         notes: null,
         exercises,
@@ -114,24 +117,28 @@ export default function WorkoutLogger({ onClose, onWorkoutSaved }) {
             onClick={() => setStep("selectType")}
             className="text-[#8fbc8f] hover:text-[#a0ccb0] transition-colors"
           >
-            ← Back
+            ← {t("back")}
           </button>
         </div>
 
         <h1 className="text-white text-2xl md:text-3xl font-bold mb-2">
           {workoutTypeNames[workoutType]}
         </h1>
-        <p className="text-[#6b8b6b] text-sm md:text-base mb-6">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          })}
-        </p>
+        <div className="mb-6">
+          <label className="block text-[#8fbc8f] text-sm font-medium mb-2">
+            {t("selectDate")}
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full bg-[#131a16] border border-[#2a3a2a] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#5a8a5a] transition-colors"
+          />
+        </div>
 
         <div className="mb-6">
           <label className="block text-[#8fbc8f] text-sm font-medium mb-2">
-            Duration (minutes)
+            {t("durationLabel")}
           </label>
           <input
             type="number"
@@ -192,7 +199,7 @@ export default function WorkoutLogger({ onClose, onWorkoutSaved }) {
           disabled={saving || exercises.length === 0}
           className="w-full bg-[#3a5a3a] hover:bg-[#4a6a4a] disabled:bg-[#2a3a2a] text-white font-semibold py-3 rounded-lg transition-colors disabled:cursor-not-allowed"
         >
-          {saving ? "Saving..." : "Save Workout"}
+          {saving ? t("saving") : t("saveWorkout")}
         </button>
       </div>
     </div>

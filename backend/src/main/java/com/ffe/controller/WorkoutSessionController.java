@@ -89,6 +89,31 @@ public class WorkoutSessionController {
         WorkoutSession savedWorkout = workoutSessionService.createWorkout(workout);
         return ResponseEntity.ok(savedWorkout);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WorkoutSession> updateWorkout(
+            @PathVariable("id") Long id,
+            @RequestBody WorkoutSessionDTO workoutDTO,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        WorkoutSession existing = workoutSessionService.getWorkoutById(id)
+            .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+        if (!existing.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        existing.setDate(workoutDTO.getDate());
+        existing.setDurationMinutes(workoutDTO.getDurationMinutes());
+        existing.setNotes(workoutDTO.getNotes());
+
+        WorkoutSession updated = workoutSessionService.updateWorkout(existing);
+        return ResponseEntity.ok(updated);
+    }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkout(@PathVariable("id") Long id, Authentication authentication) {

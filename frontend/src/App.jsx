@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import HomeScreen from "./components/HomeScreen";
 import ChatScreen from "./components/ChatScreen";
 import BottomNav from "./components/BottomNav";
@@ -12,6 +13,7 @@ function AuthenticatedApp() {
   const [chatOpen, setChatOpen] = useState(false);
   const [initialChatMessage, setInitialChatMessage] = useState("");
   const { logout } = useAuth();
+  const { toggleLanguage, lang } = useLanguage();
 
   const handleOpenChat = (message) => {
     setInitialChatMessage(message);
@@ -33,6 +35,14 @@ function AuthenticatedApp() {
           />
         ) : (
           <>
+            <div className="flex items-center justify-end px-5 md:px-8 pt-4">
+              <button
+                onClick={toggleLanguage}
+                className="text-xs px-3 py-2 rounded-full border border-[#2a3a2a] text-[#8fbc8f] hover:border-[#5a8a5a] hover:text-[#a0ccb0] transition-colors"
+              >
+                {lang === "en" ? "हिंदी" : "English"}
+              </button>
+            </div>
             {activeView === "home" && (
               <HomeScreen onOpenChat={handleOpenChat} />
             )}
@@ -75,8 +85,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
