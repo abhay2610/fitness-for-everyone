@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import API_BASE from "../config/api";
 
 const INITIAL_MESSAGES = [
   {
@@ -37,7 +39,7 @@ export default function ChatScreen({ initialMessage, onBack }) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -46,19 +48,31 @@ export default function ChatScreen({ initialMessage, onBack }) {
     setInput("");
     setIsTyping(true);
 
-    // Simulated response — will be replaced with real API call
-    setTimeout(() => {
+    try {
+      const { data } = await axios.post(`${API_BASE}/api/chat`, {
+        message: userMsg.content,
+      });
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           role: "assistant",
-          content:
-            "I'm a placeholder response! Once the FastAPI agent is connected, I'll give you real fitness advice tailored to your goals and progress.",
+          content: data.reply || "I couldn't generate a reply right now.",
         },
       ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 2,
+          role: "assistant",
+          content:
+            "Sorry, I couldn't reach the chat service. Please try again.",
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
