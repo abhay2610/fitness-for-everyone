@@ -7,6 +7,7 @@ import BottomNav from "./components/BottomNav";
 import LoginScreen from "./components/LoginScreen";
 import SignupScreen from "./components/SignupScreen";
 import ActivityScreen from "./components/ActivityScreen";
+import ProfileScreen from "./components/ProfileScreen";
 
 function AuthenticatedApp() {
   const [activeView, setActiveView] = useState("home");
@@ -48,17 +49,17 @@ function AuthenticatedApp() {
             )}
             {activeView === "activity" && <ActivityScreen />}
             {activeView === "settings" && (
-              <div className="px-5 md:px-8 lg:px-12 pt-6 md:pt-24 pb-24">
-                <h1 className="text-white text-2xl md:text-3xl font-bold mb-4">
-                  Settings
-                </h1>
-                <button
-                  onClick={logout}
-                  className="mt-4 bg-red-900/20 border border-red-800 text-red-400 px-6 py-2 rounded-lg hover:bg-red-900/30 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
+              <>
+                <ProfileScreen />
+                <div className="px-5 md:px-8 lg:px-12 pb-24">
+                  <button
+                    onClick={logout}
+                    className="mt-4 bg-red-900/20 border border-red-800 text-red-400 px-6 py-2 rounded-lg hover:bg-red-900/30 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </>
             )}
             <BottomNav activeView={activeView} onNavigate={setActiveView} />
           </>

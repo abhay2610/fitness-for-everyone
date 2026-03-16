@@ -1,6 +1,5 @@
 package com.ffe.security;
 
-import com.ffe.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

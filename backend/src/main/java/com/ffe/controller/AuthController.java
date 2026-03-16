@@ -42,11 +42,23 @@ public class AuthController {
             user.setEmail(request.getEmail());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setName(request.getName());
+            user.setAge(request.getAge());
+            user.setHeightCm(request.getHeightCm());
+            user.setWeightKg(request.getWeightKg());
+            user.setSex(request.getSex());
             
             User savedUser = userService.createUser(user);
             String token = tokenProvider.generateToken(savedUser.getEmail());
             
-            return ResponseEntity.ok(new AuthResponse(token, savedUser.getEmail(), savedUser.getName()));
+            return ResponseEntity.ok(new AuthResponse(
+                    token,
+                    savedUser.getEmail(),
+                    savedUser.getName(),
+                    savedUser.getAge(),
+                    savedUser.getHeightCm(),
+                    savedUser.getWeightKg(),
+                    savedUser.getSex()
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
         }
@@ -63,7 +75,15 @@ public class AuthController {
             User user = userService.getUserByEmail(request.getEmail())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             
-            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getName()));
+            return ResponseEntity.ok(new AuthResponse(
+                    token,
+                    user.getEmail(),
+                    user.getName(),
+                    user.getAge(),
+                    user.getHeightCm(),
+                    user.getWeightKg(),
+                    user.getSex()
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Invalid email or password");
         }

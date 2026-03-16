@@ -1,5 +1,6 @@
 package com.ffe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,9 +24,20 @@ public class User {
     private String email;
     
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
-    
+
     private String name;
+
+    private Integer age;
+
+    @Column(name = "height_cm")
+    private Double heightCm;
+
+    @Column(name = "weight_kg")
+    private Double weightKg;
+
+    private String sex;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;

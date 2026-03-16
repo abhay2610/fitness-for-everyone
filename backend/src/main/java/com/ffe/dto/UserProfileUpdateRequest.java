@@ -3,9 +3,7 @@ package com.ffe.dto;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
-    private String email;
-    private String password;
+public class UserProfileUpdateRequest {
     private String name;
     private Integer age;
     private Double heightCm;

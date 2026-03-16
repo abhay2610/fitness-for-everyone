@@ -38,8 +38,16 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
-      const { token, email: userEmail, name } = response.data;
-      const userData = { email: userEmail, name };
+      const {
+        token,
+        email: userEmail,
+        name,
+        age,
+        heightCm,
+        weightKg,
+        sex,
+      } = response.data;
+      const userData = { email: userEmail, name, age, heightCm, weightKg, sex };
 
       setToken(token);
       setUser(userData);
@@ -54,16 +62,43 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, name) => {
+  const register = async ({
+    email,
+    password,
+    name,
+    age,
+    heightCm,
+    weightKg,
+    sex,
+  }) => {
     try {
       const response = await axios.post(`${API_BASE}/api/auth/register`, {
         email,
         password,
         name,
+        age,
+        heightCm,
+        weightKg,
+        sex,
       });
 
-      const { token, email: userEmail, name: userName } = response.data;
-      const userData = { email: userEmail, name: userName };
+      const {
+        token,
+        email: userEmail,
+        name: userName,
+        age,
+        heightCm,
+        weightKg,
+        sex,
+      } = response.data;
+      const userData = {
+        email: userEmail,
+        name: userName,
+        age,
+        heightCm,
+        weightKg,
+        sex,
+      };
 
       setToken(token);
       setUser(userData);
@@ -85,12 +120,37 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const fetchProfile = async () => {
+    if (!token) return null;
+    const response = await axios.get(`${API_BASE}/api/users/me`);
+    const profile = response.data;
+    setUser((prev) => ({ ...(prev || {}), ...profile }));
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ ...(user || {}), ...profile }),
+    );
+    return profile;
+  };
+
+  const updateProfile = async (payload) => {
+    const response = await axios.put(`${API_BASE}/api/users/me`, payload);
+    const profile = response.data;
+    setUser((prev) => ({ ...(prev || {}), ...profile }));
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ ...(user || {}), ...profile }),
+    );
+    return profile;
+  };
+
   const value = {
     user,
     token,
     login,
     register,
     logout,
+    fetchProfile,
+    updateProfile,
     isAuthenticated: !!token,
   };
 

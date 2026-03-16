@@ -32,6 +32,22 @@ public class UserService {
         }
         return userRepository.save(user);
     }
+
+    public User updateUserProfile(String email, Integer age, Double heightCm, Double weightKg, String sex, String name) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (name != null) user.setName(name);
+        if (age != null) user.setAge(age);
+        if (heightCm != null) user.setHeightCm(heightCm);
+        if (weightKg != null) user.setWeightKg(weightKg);
+        if (sex != null) user.setSex(sex);
+        return userRepository.save(user);
+    }
+
+    public User requireByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
     
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
